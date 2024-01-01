@@ -1,0 +1,4 @@
+server.home. IN SOA dns.server.home. user.server.home 2023122908 7200 3600 120966 3600
+
+wiki.server.home. IN A 172.31.199.91
+dashboard.server.home. IN A 172.31.199.91

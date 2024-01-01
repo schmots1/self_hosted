@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: coredns-udp
+  namespace: homeserver
+spec:
+  ports:
+  - name: web
+    port: 53
+    targetPort: web
+    protocol: UDP
+  selector:
+    app: coredns
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coredns
+  namespace: homeserver
+  labels:
+    app: coredns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coredns
+  template:
+    metadata:
+      labels:
+        app: coredns
+    spec:
+      hostname: coredns
+      containers:
+      - name: coredns
+        ports:
+        - name: web
+          containerPort: 53
+          protocol: UDP
+        image: coredns/coredns
+        args:
+        - -conf
+        - /root/Corefile
+        volumeMounts:
+        - name: coredns-root
+          mountPath: '/root'
+    volumes:
+    - name: coredns-root
+      hostPath:
+        path: '/server/coredns/root'
+        type: Directory

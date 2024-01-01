@@ -1,0 +1,11 @@
+.:53 {
+        forward . 8.8.8.8 1.1.1.1
+        log
+        errors
+}
+
+server.home:53 {
+        file /root/dns.db
+        log
+        errors
+}
