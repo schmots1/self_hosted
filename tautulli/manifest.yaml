@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: Service
+metadata:
+ name: tautulli
+ namespace: homeserver
+spec:
+ ports:
+   - name: web
+     port: 8181
+     targetPort: web
+ selector:
+   app: tautulli
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tautulli
+  namespace: homeserver
+  labels:
+    app: tautulli
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tautulli
+  template:
+    metadata:
+      labels:
+        app: tautulli
+    spec:
+      containers:
+        - name: tautulli
+          ports:
+           - name: web
+             containerPort: 8181
+          image: linuxserver/tautulli
+          volumeMounts:
+            - name: tautulli-config
+              mountPath: "/config"
+      volumes:
+        - name: tautulli-config
+          hostPath:
+            path: "/server/tautulli/config/"
+            type: Directory
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+ name: tautulli
+ namespace: homeserver
+ annotations:
+   cert-manager.io/issuer: "le-http"
+spec:
+ rules:
+   - host: plex.server.home
+     http:
+       paths:
+         - path: /
+           pathType: Prefix
+           backend:
+             service:
+               name: tautulli
+               port:
+                 name: web

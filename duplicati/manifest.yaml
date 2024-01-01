@@ -1,0 +1,74 @@
+apiVersion: v1 
+kind: Service 
+metadata: 
+ name: duplicati 
+ namespace: homeserver 
+spec: 
+ ports: 
+   - name: web 
+     port: 8200 
+     targetPort: web 
+ selector: 
+   app: duplicati 
+--- 
+apiVersion: apps/v1 
+kind: Deployment 
+metadata: 
+ name: duplicati 
+ namespace: homeserver 
+spec: 
+ selector: 
+   matchLabels: 
+     app: duplicati 
+ template: 
+   metadata: 
+     labels: 
+       app: duplicati 
+   spec: 
+     containers: 
+       - name: backup 
+         image: linuxserver/duplicati 
+         volumeMounts: 
+          - name: duplicati-config 
+            mountPath: "/config" 
+          - name: duplicati-source 
+            mountPath: "/source" 
+         ports: 
+           - name: web 
+             containerPort: 8200 
+         env: 
+           - name: PUID 
+             value: '1000' 
+           - name: PGID 
+             value: '1000' 
+           - name: TZ 
+             value: EST5EDT 
+     volumes: 
+        - name: duplicati-source 
+          hostPath: 
+            path: "/server/" 
+            type: Directory 
+        - name: duplicati-config 
+          hostPath: 
+            path: "/server/duplicati/config" 
+            type: Directory 
+--- 
+apiVersion: networking.k8s.io/v1 
+kind: Ingress 
+metadata: 
+ name: duplicati 
+ namespace: homeserver 
+ annotations: 
+   cert-manager.io/issuer: "le-http" 
+spec: 
+ rules: 
+   - host: backup.server.home 
+     http: 
+       paths: 
+         - path: / 
+           pathType: Prefix 
+           backend: 
+             service: 
+               name: duplicati 
+               port: 
+                 name: web

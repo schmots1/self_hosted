@@ -1,0 +1,95 @@
+apiVersion: v1 
+kind: Service 
+metadata: 
+ name: nextcloud 
+ namespace: homeserver 
+spec: 
+ ports: 
+   - name: web 
+     port: 80 
+     targetPort: web 
+   - name: db 
+     port: 3306 
+     targetPort: db 
+ selector: 
+   app: nextcloud 
+--- 
+apiVersion: apps/v1 
+kind: Deployment 
+metadata: 
+ name: nextcloud 
+ namespace: homeserver 
+spec: 
+ selector: 
+   matchLabels: 
+     app: nextcloud 
+ template: 
+   metadata: 
+     labels: 
+       app: nextcloud 
+   spec: 
+     containers: 
+       - name: web 
+         image: nextcloud 
+         volumeMounts: 
+          - name: nextcloud-data 
+            mountPath: "/var/www/html" 
+         ports: 
+           - name: web 
+             containerPort: 80 
+         env: 
+           - name: MYSQL_PASSWORD 
+             value: '$MYSQL_PASSWORD' 
+           - name: MYSQL_DATABASE 
+             value: nextcloud 
+           - name: MYSQL_USER 
+             value: nextcloud 
+           - name: MYSQL_HOST 
+             value: '127.0.0.1' 
+       - name: db 
+         #image: mariadb:10.1 
+         image: mariadb 
+         ports: 
+           - name: db 
+             containerPort: 3306 
+         env: 
+           - name: MYSQL_ROOT_PASSWORD 
+             value: '$MYSQL_PASSWORD' 
+           - name: MYSQL_USER 
+             value: nextcloud 
+           - name: MYSQL_PASSWORD 
+             value: '$MYSQL_PASSWORD' 
+           - name: MYSQL_DATABASE 
+             value: nextcloud 
+         volumeMounts: 
+          - name: mariadb-db 
+            mountPath: "/var/lib/mysql/" 
+     volumes: 
+      - name: nextcloud-data 
+        hostPath: 
+          path: "/server/nextcloud/data/" 
+          type: Directory 
+      - name: mariadb-db 
+        hostPath: 
+          path: "/server/nextcloud/db/" 
+          type: Directory 
+--- 
+apiVersion: networking.k8s.io/v1 
+kind: Ingress 
+metadata: 
+ name: nextcloud 
+ namespace: homeserver 
+ annotations: 
+   cert-manager.io/issuer: "le-http" 
+spec: 
+ rules: 
+   - host: nextcloud.server.home 
+     http: 
+       paths: 
+         - path: / 
+           pathType: Prefix 
+           backend: 
+             service: 
+               name: nextcloud 
+               port: 
+                 name: web

@@ -1,0 +1,70 @@
+apiVersion: v1 
+kind: Service 
+metadata: 
+ name: wikijs 
+ namespace: homeserver 
+spec: 
+ ports: 
+   - name: web 
+     port: 3000 
+     targetPort: web 
+ selector: 
+   app: wikijs 
+--- 
+apiVersion: apps/v1 
+kind: Deployment 
+metadata: 
+  name: wikijs 
+  namespace: homeserver 
+  labels: 
+    app: wikijs 
+spec: 
+  replicas: 1 
+  selector: 
+    matchLabels: 
+      app: wikijs 
+  template: 
+    metadata: 
+      labels: 
+        app: wikijs 
+    spec: 
+      containers: 
+        - name: wikijs 
+          ports: 
+           - name: web 
+             containerPort: 3000 
+          image: lscr.io/linuxserver/wikijs 
+          volumeMounts: 
+            - name: wikijs-config 
+              mountPath: "/config" 
+            - name: wikijs-data 
+              mountPath: "/data" 
+      volumes: 
+        - name: wikijs-config 
+          hostPath: 
+            path: "/server/wiki/config/" 
+            type: Directory 
+        - name: wikijs-data 
+          hostPath: 
+            path: "/server/wiki/data/" 
+            type: Directory 
+--- 
+apiVersion: networking.k8s.io/v1 
+kind: Ingress 
+metadata: 
+ name: wikijs 
+ namespace: homeserver 
+ annotations: 
+   cert-manager.io/issuer: "le-http" 
+spec: 
+ rules: 
+   - host: wiki.server.home 
+     http: 
+       paths: 
+         - path: / 
+           pathType: Prefix 
+           backend: 
+             service: 
+               name: wikijs 
+               port: 
+                 name: web
