@@ -359,11 +359,9 @@ nginx   1/1     Running   0          10s
 kubectl port-forward pod/nginx 8080:80 --address=0.0.0.0
 ```
 
-Now, open a browser and navigate to ‘
+Now, open a browser and navigate to ‘**http://<your host IP>:8080**’. 
 
-**http://<your host IP>:8080**
-
-’. You should receive a response like the example provided.
+You should receive a response like the example provided.
 
 ![home%20server%20guide%20f89e7521fa064eb78560092809956d30/image7.png](home%20server%20guide%20f89e7521fa064eb78560092809956d30/image7.png)
 
