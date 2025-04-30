@@ -56,85 +56,100 @@ Get ready to take back control of your digital life and experience the full powe
 
 # Virtual Machines vs Docker vs Kubernetes
 
-When it comes to running multiple applications on a single host, there are several approaches to consider. One option is to install all applications directly on the host and hope for the best in terms of avoiding conflicts. A more reliable approach is to use **Virtual Machines (VMs)**, where each application runs in its own isolated environment. Alternatively, you can use **containers** to run applications as microservices. In this guide, we focus on the latter—specifically using **Docker** and **Kubernetes** to manage containers.
-
-To help you understand why, let’s break down the differences between VMs, containers, and Kubernetes.
+This section compares three common ways to host applications: **Virtual Machines**, **Docker Containers**, and **Kubernetes**. The diagrams below show how resources are structured in each method, helping you understand the differences in isolation, performance, and scalability.
 
 ---
 
-## Virtual Machines
+## 🖥️ Virtual Machines
 
-**Virtual Machines** simulate an entire operating system on your hardware. They allow you to run multiple operating systems—like Windows and Linux—on a single physical machine. This is made possible by virtualization software such as VirtualBox, VMware, or KVM.
+Each application runs inside its own **virtual machine**, complete with a separate guest operating system. This offers strong isolation but comes at the cost of higher resource usage.
 
-### Benefits of VMs:
-- Full isolation between applications  
-- Ability to run multiple operating systems on the same hardware  
-- Widely supported across on-prem and cloud infrastructure  
-- Mature tooling and ecosystem  
+```
++----------------------+
+|   Application B      |
++----------------------+
+|   Guest OS (Linux)   |
++----------------------+
+|     Hypervisor       |
++----------------------+
+|   Application A      |
++----------------------+
+|   Guest OS (Windows) |
++----------------------+
+|     Hypervisor       |
++----------------------+
+|      Host OS         |
++----------------------+
+|      Hardware        |
+```
 
-However, VMs are resource-intensive since each VM runs a full OS instance, making them less efficient for lightweight or short-lived applications.
-
----
-
-## Containers
-
-**Containers** package an application and all its dependencies into a single, portable unit that runs reliably in different environments. Unlike VMs, containers share the host operating system, which makes them faster and more lightweight.
-
-Think of containers like shipping containers: each one is isolated, yet they can all travel on the same ship.
-
-### Benefits of Containers:
-- Lightweight and fast startup  
-- Portable across environments (PCs, servers, cloud)  
-- Isolated but share the same OS kernel  
-- Ideal for microservices  
-- Easier to manage and update than VMs  
-
----
-
-## Docker
-
-**Docker** is the most popular tool for creating, running, and managing containers. Introduced in 2013, Docker revolutionized containerization with simple tools and strong ecosystem support.
-
-### Key Features of Docker:
-- Easy application packaging and deployment  
-- Strong isolation between containers  
-- Works on Linux, Windows, and macOS  
-- CLI and GUI tools for managing containers  
-- Reduces infrastructure overhead  
-- Enables microservice development  
-- Great for local development (e.g., AWS Lambda emulation)
+- 🧱 Each VM includes a full OS and runs independently.
+- 💾 Higher resource consumption (CPU, RAM, storage).
+- 🛡️ Strong security and isolation.
+- 🧩 Best for running apps that need different operating systems or legacy environments.
 
 ---
 
-## Kubernetes
+## 📦 Docker (Containers)
 
-**Kubernetes** is an open-source platform designed to manage containerized applications at scale. While Docker helps you run a single container or small group, Kubernetes helps you coordinate, scale, and maintain hundreds (or thousands) of containers.
+Docker allows you to run applications in isolated containers that share the host OS kernel. Containers are lightweight and quick to deploy.
 
-### Key Benefits of Kubernetes:
-- Automated container deployment, scaling, and management  
-- Zero-downtime rolling updates  
-- Works across clouds (AWS, Azure, GCP) and on-premises  
-- Strong community and ecosystem  
-- Highly flexible and cloud-native  
-- Supports both Linux and Windows containers  
+```
++----------------------+
+|  App B (Container)   |
++----------------------+
+|  App A (Container)   |
++----------------------+
+|   Docker Engine      |
++----------------------+
+|     Host OS          |
++----------------------+
+|     Hardware         |
+```
 
----
-
-## Virtualization vs. Containerization
-
-| Feature               | Virtual Machines                  | Containers                        |
-|----------------------|-----------------------------------|-----------------------------------|
-| OS Overhead          | High (each VM has its own OS that the user must manage)     | Low (containers are built on stub OS setups that the user doesn't have to manage host OS)    |
-| Resource Usage       | More CPU and memory               | More lightweight                  |
-| Startup Time         | Slower (full OS boot)             | Faster (just the app starts)      |
-| Portability          | Less portable                     | Highly portable                   |
-| Ideal Use Case       | Long-lived, full-featured systems | Short-lived or scalable services  |
+- 🚀 Faster startup and lower overhead than VMs.
+- 🔗 Containers are isolated but share the same OS kernel.
+- 🔄 Ideal for microservices, dev/testing environments, and small-scale hosting.
+- 🧰 Easy to deploy, update, and replicate.
 
 ---
 
-## Which Should You Use?
+## ☸️ Kubernetes with Docker
 
-For self-hosted applications, **containers are often the better choice**. They’re quick to deploy, use fewer resources, and are easy to manage with tools like Docker and Kubernetes. While VMs still have their place, particularly for running full OS environments or legacy software, containers are ideal for the kind of lightweight, flexible services you'll be running on your home server.
+Kubernetes orchestrates and manages containers across one or more nodes (servers). It automates deployment, scaling, and recovery.
+
+```
++----------------------------------+
+| Kubernetes Pods (App A & B)      |
++----------------------------------+
+|        Docker Engine             |
++----------------------------------+
+|           Host OS                |
++----------------------------------+
+|           Hardware               |
+```
+
+- 📡 Coordinates many containers, even across multiple machines.
+- 🔁 Supports rolling updates and auto-recovery.
+- 🌐 Works in both cloud and home environments.
+- 🧠 Excellent for running multiple services or applications at scale.
+
+---
+
+## Summary Table
+
+| Feature            | Virtual Machines         | Docker (Containers)     | Kubernetes (with Docker)      |
+|--------------------|--------------------------|--------------------------|--------------------------------|
+| OS Isolation        | Full (per VM)            | Shared host OS           | Shared host OS (multi-node)   |
+| Resource Usage      | High                     | Low                      | Low per container, managed    |
+| Startup Time        | Slow                     | Fast                     | Fast (automated)              |
+| Ease of Setup       | Moderate to Complex      | Easy                     | Moderate to Complex           |
+| Ideal Use Case      | Legacy/isolated apps     | Dev & microservices      | Scalable multi-service apps   |
+
+---
+
+💡 *For most self-hosted users, Docker offers the best balance of simplicity and performance. Kubernetes is ideal if you want automation, scaling, and orchestration for many services.*
+
 
 # Host Considerations for Kubernetes Installation
 
@@ -207,25 +222,28 @@ Now that you have a solid understanding of the hardware and networking requireme
 
 # Operating System Installation
 
-To ensure optimal functionality of the services discussed in this guide, Linux will be used as the operating system. Specifically, we will cover the installation process using the Ubuntu distribution.
+To ensure optimal functionality of the services discussed in this guide, we’ll use **Linux** as the operating system—specifically, the **Ubuntu Server** distribution.
 
-If you are not familiar or comfortable with Linux do not worry. This guide will include all the commands needed to accomplish these tasks and most commands and files can be copy and pasted right from the guide.
+If you're not familiar or comfortable with Linux, don’t worry. This guide attempts to provides **all the necessary commands**, and most of them can be **copied and pasted** directly from the examples.
+
+---
 
 ## Creating the Bootable USB Thumb Drive
 
-1. Download the Ubuntu Server 22.04 LTS ISO from [https://releases.ubuntu.com/22.04.2/ubuntu-22.04.2-live-server-amd64.iso](https://releases.ubuntu.com/22.04.2/ubuntu-22.04.2-live-server-amd64.iso)
-2. Download 'unetbootin' from [ [https://unetbootin.github.io/](https://unetbootin.github.io/)]. You can find versions for Windows, Linux, and macOS.
-3. Run unetbootin and select the ISO file downloaded in step 1.
+1. Download the Ubuntu Server 24.04 LTS ISO from:  
+   [https://releases.ubuntu.com/24.04.2/ubuntu-24.04.2-live-server-amd64.iso](https://releases.ubuntu.com/24.04.2/ubuntu-24.04.2-live-server-amd64.iso)  
+   _\*This was the current release at the time of this publication._
 
-<aside>
-🔥 Important: This process will erase all data on the USB drive, so make sure to backup any important files.
+2. Download **UNetbootin** from:  
+   [https://unetbootin.github.io/](https://unetbootin.github.io/)  
+   Versions are available for Windows, Linux, and macOS.
 
-</aside>
+3. Run **UNetbootin** and select the ISO file you downloaded in Step 1.
 
-<aside>
-💡 The duration of this step depends on various factors, such as your computer's speed, the USB drive's speed, and the current workload on your computer. It may take a few seconds or up to 10-15 minutes or more. If the process is running and your USB drive's LED is blinking, it is progressing correctly.
+> 🔥 **Important:** This process will erase all data on the USB drive. Make sure to back up any important files before continuing.
 
-</aside>
+> 💡 **Tip:** The duration of this step depends on your computer's speed, the USB drive's speed, and the overall workload of your system. It can take anywhere from a few seconds to 10–15 minutes. If your USB drive's LED is blinking, the process is still running correctly.
+
 
 ## Ubuntu Server Installation
 
