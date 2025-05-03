@@ -31,7 +31,6 @@ Now, let's explore just a few of the applications you can run on your home serve
 - **Media servers** – Stream your own music, TV shows, and movies from anywhere.
 - **Web-based book libraries** – Read and organize your eBooks through a web interface.
 - **Game servers** – Run custom game servers, like Minecraft, for a tailored experience.
-- **Download management** – Automate and manage your downloads efficiently.
 
 ## Why This Guide?
 
