@@ -348,7 +348,7 @@ To ensure HTTPS certification for Rancher and any exposed applications, a certif
 1. Install the Certificate Manager by applying the following command:
 
 ```bash
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.11.0/cert-manager.yaml
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.yaml
 ```
 
 This will install the Certificate Manager onto your Kubernetes cluster.
@@ -369,6 +369,7 @@ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scrip
 chmod 700 get_helm.sh
 sudo ./get_helm.sh
 ```
+* depending on what is installed on the host the install may require other packages be installed, like git or tar
 
 <aside>
 💡 *Enter your user password if prompted.*
@@ -388,7 +389,7 @@ To simplify networking in Kubernetes, we will install MetalLB ([https://metallb.
 1. Install the MetalLB manifest from the internet using the following command:
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.9/config/manifests/metallb-native.yaml
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
 ```
 
 1. Define the range of IP addresses to be used by MetalLB by creating a file called ippool.yaml with the following contents. *Make sure to update the address range to match your network:*
@@ -404,11 +405,6 @@ spec:
   - 172.31.199.91-172.31.199.99
 ```
 
-Use the nano text editor to create and save the file:
-
-```bash
-nano ippool.yaml
-```
 
 1. Create a file named advert.yaml with the following content to assign the IP address pool to be advertised by MetalLB:
 
@@ -421,12 +417,6 @@ metadata:
 spec:
   ipAddressPools:
   - first-pool
-```
-
-Use the nano text editor to create and save the file:
-
-```bash
-nano advert.yaml
 ```
 
 1. Apply the configuration files to Kubernetes using the following command:
@@ -453,7 +443,7 @@ pod/nginx-8f458dc5b-gs9nf   0/1     ContainerCreating   0          0s
 
 NAME                 TYPE           CLUSTER-IP      EXTERNAL-IP     PORT(S)        AGE
 service/kubernetes   ClusterIP      10.43.0.1       <none>          443/TCP        20m
-service/nginx        LoadBalancer   10.43.174.187   1**72.31.199.91**   80:30533/TCP   0s
+service/nginx        LoadBalancer   10.43.174.187   **172.31.199.91**   80:30533/TCP   0s
 
 NAME                    READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/nginx   0/1     1            0           0s
