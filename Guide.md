@@ -213,161 +213,7 @@ If you want to access your self-hosted services from outside your home network, 
   - _Note: Free options may share some traffic/usage metadata publicly_
 
 > 💡 **See the Appendix of this guide for full instructions on external access setup.**
-
 ---
-
-Now that you have a solid understanding of the hardware and networking requirements, let’s move on to installing the operating system.
-
-
-# Operating System Installation
-
-To ensure optimal functionality of the services discussed in this guide, we’ll use **Linux** as the operating system—specifically, the **Ubuntu Server** distribution.
-
-If you're not familiar or comfortable with Linux, don’t worry. This guide attempts to provides **all the necessary commands**, and most of them can be **copied and pasted** directly from the examples.
-
----
-
-## Creating the Bootable USB Thumb Drive
-
-1. Download the Ubuntu Server 24.04 LTS ISO from:  
-   [https://releases.ubuntu.com/24.04.2/ubuntu-24.04.2-live-server-amd64.iso](https://releases.ubuntu.com/24.04.2/ubuntu-24.04.2-live-server-amd64.iso)  
-   _\*This was the current release at the time of this publication._
-
-2. Download **UNetbootin** from:  
-   [https://unetbootin.github.io/](https://unetbootin.github.io/)  
-   Versions are available for Windows, Linux, and macOS.
-
-3. Run **UNetbootin** and select the ISO file you downloaded in Step 1.
-
-> 🔥 **Important:** This process will erase all data on the USB drive. Make sure to back up any important files before continuing.
-
-> 💡 **Tip:** The duration of this step depends on your computer's speed, the USB drive's speed, and the overall workload of your system. It can take anywhere from a few seconds to 10–15 minutes. If your USB drive's LED is blinking, the process is still running correctly.
-
-
-## Ubuntu Server Installation
-
-These instructions will guide you through the successful installation of the Ubuntu operating system, enabling you to proceed with the setup of your server.
-
-1. Connect the USB drive to the system that will become your server. Ensure that the host is already connected to your router via an Ethernet cable.
-2. Power on or reboot the server system. As soon as it boots, press the key that allows you to access the boot options (usually F2 or F10 key). Select the USB drive as the boot device.
-3. Choose "Try or Install Ubuntu."
-4. Follow these selection steps:
-    1. Select your preferred language and press 'Return.'
-    2. Choose "Continue without updating" and press 'Return.'
-    3. Select your keyboard type and press 'Return.'
-    4. Select "Ubuntu Server minimized."
-    5. Accept the DHCP-pulled IP address (note it down). Use the 'Tab' key to select the 'Done' option at the bottom of the screen and press 'Return.'
-    6. Press 'Return' to leave the proxy field blank.
-    7. Press 'Return' to accept the default repository URL.
-    8. Ensure that "Use entire disk" is selected, then choose "Done" and press 'Return.'
-    9. Press 'Return' to accept the drive layout proposed by Ubuntu, then select "Continue" and press 'Return.'
-    10. Fill out your name, username, password, and choose a server name. For example, you can use "server" for the server’s name and "user" for the username. Use the 'Tab' key to move between fields.
-    11. Do not enable Ubuntu Pro.
-    12. Press the 'Space Bar' to select "Install OpenSSH server." Unless you have an identity to import, leave the option as "No." Use 'Tab' to select "Done" and press 'Return.'
-    13. Press 'Tab' to select "Done" and press 'Return.' Do not select any additional packages.
-5. While the operating system installs, take a break, and enjoy a coffee or soda.
-6. Once the option reads "Reboot Now," select it and press 'Return.'
-7. When you see the message "Please remove the installation medium, then press ENTER," press 'Return' and remove the USB drive.
-8. After rebooting, you may need to press 'Return' once. Then, log in using the username and password specified in step 4j.
-9. Lastly, make a note of the IP address assigned to the server. The IP address acts as the computer's home address on the network and will be used to remotely connect to the server for further setup. You can use the command "ip address" to find this information.
-
-Important: It is necessary to have previously noted the name of your Ethernet port. For example, in this example, the 'inet' or internet address for 'enp0s3' is '172.31.199.126'.
-
-```bash
-ip address
-```
-
-![image2.png](home%20server%20guide%20f89e7521fa064eb78560092809956d30/image2.png)
-
-Your server currently has an automatically assigned IP address that may change upon reboot or after a certain period of time, depending on your router's settings. However, for a server, it is essential to have a "static" IP address that doesn't change. To set a static IP address, you need to note three things:
-
-1. The IP address you will use as your static address.
-2. The default gateway, which is the IP address of your router and is used to reach the internet (I'll show you how to find this).
-3. The default DNS system, which is usually your router as well (I'll guide you on how to find this).
-
-## Selecting an IP Address for Kubernetes
-
-To begin, you need to choose an IP address that is not already in use by any other device. In most home networks, a class C network is used. You don't need to understand the technical details but remember that only the last number in the IP address sequence changes. For example, if you have an IP address like 192.168.0.100, the 192.168.0. part remains the same. The last number can range from 1 to 255, excluding 255 which is reserved for special purposes. Since routers often assign IP addresses starting from 100, let's consider numbers below that range. For instance, in my network with an IP address of 172.31.199, I will try using 90.
-
-Checking for IP Address Availability
-
-To ensure your server has a consistent IP address that doesn't change, follow these steps:
-
-1. Choose a unique IP address: Select an IP address that is not already in use by any other device on your network. In most home networks, the IP address format is like this: 192.168.0.X, where X can range from 1 to 255 (excluding 255). Since routers often assign IP addresses starting from 100, it's safer to choose a number below that range. For example, if your network IP address is 172.31.199, you can try using 90.
-2. Check IP address availability: To confirm if the chosen IP address is available, we'll use a program called 'ping'. However, 'ping' is not installed by default on Ubuntu Server 22.04. You can install it using the following command:
-
-```bash
-sudo apt install iputils-ping -y
-```
-
-After installation, you can test the address availability by running the ping command:
-
-```bash
-ping -c 4 172.31.199.90
-```
-
-This command sends four test pings to the address. If there is no response, it means the IP address is available.
-
-![home%20server%20guide%20f89e7521fa064eb78560092809956d30/image3.png](home%20server%20guide%20f89e7521fa064eb78560092809956d30/image3.png)
-
-<aside>
-💡 **This is a ping failing.**
-
-</aside>
-
-![home%20server%20guide%20f89e7521fa064eb78560092809956d30/image4.png](home%20server%20guide%20f89e7521fa064eb78560092809956d30/image4.png)
-
-<aside>
-🔥 **This is a ping succeeding.**
-
-</aside>
-
-1. Install a text editor: We'll use the 'nano' text editor to modify a configuration file. Install it with the command:
-
-```bash
-sudo apt install nano -y
-```
-
-1. Edit the network configuration file: Open the configuration file with the nano editor:
-
-sudo nano /etc/netplan/00-installer-config.yaml
-
-**Edit the file from looking like this…**
-
-![VirtualBox_homeserver_24_12_2023_15_01_26.png](home%20server%20guide%20f89e7521fa064eb78560092809956d30/VirtualBox_homeserver_24_12_2023_15_01_26.png)
-
-
-**To looking like this.**
-
-![VirtualBox_homeserver_24_12_2023_15_03_46.png](home%20server%20guide%20f89e7521fa064eb78560092809956d30/VirtualBox_homeserver_24_12_2023_15_03_46.png)
-
-In this file, update the interface name from 'enp0s3' to match your host, and replace the IP addresses with your chosen static IP address. Also, update the IP address in the 'gateway4' field to match the first three sections of your IP address. For example, if you chose '192.168.0.90' as your IP address, use '192.168.0.1' as the gateway IP. Save the changes by pressing Ctrl+X, then 'y', and finally Enter.
-
-1. Apply the network configuration changes: Make the new network configuration take effect by using the netplan application:
-
-```bash
-sudo netplan apply
-```
-
-1. Verify the updated IP address: Confirm that the IP address has been updated by running the command ‘ip address’ again.
-
-```bash
-ip address
-```
-
-This simplified explanation aims to help you select and verify an available IP address for your server. Now that you have that address you can remotely connect to the host. For this you will use a protocol called SSH, which is a Secure SHell connection. If you use windows, you can download the application Putty from [https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html). If you are on a Mac or Linux, you can use the terminal. From the terminal the command you will use is.
-
-```bash
-ssh -l user 172.31.199.90
-```
-
-<aside>
-⛔ Update the username 'user' and the IP address '172.31.199.90' to your username and host IP address.
-
-</aside>
-
-The first time you connect you will be asked to accept the identity of the host to which you can just type 'yes' and hit enter. Then you will be asked for your user accounts password. Now you are remotely connected to the Host.
-
 # Installing Kubernetes
 
 Installing Kubernetes can be a complex process with various options available. Some installations are simple but lack scalability, while others offer extensive customization but are challenging to set up. To provide a balance between simplicity and flexibility, this guide focuses on the K3S Kubernetes distribution and installer.
@@ -393,9 +239,10 @@ This is done so that the large install command for K3S can be copied and pasted 
 
 ```bash
 curl -sfL https://get.k3s.io | \
-INSTALL_K3S_VERSION=v1.24.13+k3s1 \
+INSTALL_K3S_VERSION=v1.32.4+k3s1 \
 INSTALL_K3S_EXEC="server --advertise-address $SERVER_IP --disable traefik --disable servicelb" sh -
 ```
+* This version was current as of writting.
 
 Enter your user password when prompted
 
@@ -411,7 +258,6 @@ sudo chown **user**: ~/.kube/config
 
 <aside>
 ⛔ Replace **user** with your username.
-
 </aside>
 
 The utility ‘kubectl’, which is used to manage Kubernetes from the command line, needs to be authenticated for each run. It does this by reading from a configuration file that contains the proper access token for the server for a specific user. This configuration file has the token and authentication for the Kubernetes cluster admin.
